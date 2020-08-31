@@ -20,7 +20,7 @@ CREATE TABLE emoji (
     id TEXT NOT NULL PRIMARY KEY,
     char TEXT NOT NULL,
     name TEXT NOT NULL,
-    updated INTEGER DEFAULT (DATETIME('now'))
+    updated INTEGER DEFAULT(DATETIME('now'))
 );
 
 CREATE TABLE counts (

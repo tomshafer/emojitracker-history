@@ -1,5 +1,7 @@
 """Collect emojitracker data and store in sqlite."""
 
+__version__ = "0.0.1"
+
 import argparse as ap
 import json
 import logging
@@ -68,14 +70,9 @@ def poll_emojitracker() -> List[Dict]:
     return json.loads(response.content)
 
 
-if __name__ == "__main__":
-    cli = parser().parse_args()
-    logger.info(cli)
-    if cli.VERBOSE:
-        logger.setLevel(logging.INFO)
-
-    dbc = sqlite3.connect("%s" % cli.DATABASE)
-    logger.info('Opened database connection to "%s"' % cli.DATABASE)
+def collect_emoji_to_db(db_name: str) -> None:
+    dbc = sqlite3.connect("%s" % db_name)
+    logger.info('Opened database connection to "%s"' % db_name)
 
     if is_fresh_db(dbc):
         logger.info("Database is fresh, creating tables")
@@ -84,7 +81,7 @@ if __name__ == "__main__":
     emojidata = poll_emojitracker()
     with dbc:
         timer = time.time()
-        insert = dbc.executemany(
+        dbc.executemany(
             """
             INSERT OR IGNORE INTO emoji (id, char, name)
             VALUES (?,?,?)
@@ -105,3 +102,11 @@ if __name__ == "__main__":
 
     dbc.close()
     logger.info("Closed database connection")
+
+
+if __name__ == "__main__":
+    cli = parser().parse_args()
+    logger.info(cli)
+    if cli.VERBOSE:
+        logger.setLevel(logging.INFO)
+    collect_emoji_to_db(cli.DATABASE)
